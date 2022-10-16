@@ -244,6 +244,7 @@ clean:
 	$(RM) -f *.o *.ii
 	$(RM) -f *.coff
 	$(RM) -f $(PROGRAMS)
+	$(RM) -f readNum readString printString printChar printNumr 
 
 distclean: clean
 	$(RM) -f $(PROGRAMS)
