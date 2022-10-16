@@ -47,9 +47,7 @@
 //	is in machine.h.
 //----------------------------------------------------------------------
 
-
-
-//Change Current regiter, previous register, next register
+// Change Current regiter, previous register, next register
 void moveRegister()
 {
 	/* set previous programm counter (debugging only)*/
@@ -66,10 +64,64 @@ void ExceptionHandler(ExceptionType which)
 {
 	int type = kernel->machine->ReadRegister(2);
 
-
-
 	switch (which)
 	{
+	case NoException:
+	{
+		DEBUG(dbgSys, "Switch to system mode\n");
+		SysHalt();
+		break;
+	}
+	case PageFaultException:
+	{
+		DEBUG('a', "Page fault EXC: No valid translation found\n");
+		SysHalt();
+		break;
+	}
+	case ReadOnlyException:
+	{
+		DEBUG('a', "Read only EXC: Write attempted to page marked\n");
+		SysHalt();
+		break;
+	}
+
+	case BusErrorException:
+
+	{
+		DEBUG('a', "Bus error EXC: Translation resulted in an in valid physical address\n");
+		SysHalt();
+		break;
+	}
+
+	case AddressErrorException:
+	{
+		DEBUG('a', "Address error EXC: unaligned reference or one that was beyond the system\n");
+		SysHalt();
+		break;
+	}
+	case OverflowException:
+	{
+		DEBUG('a', "Overflow EXC: integer overflow in add or sub\n");
+		SysHalt();
+		break;
+	}
+
+	case IllegalInstrException:
+	{
+
+		DEBUG('a', "Illegal instructions EXC: Unimplemented or reserved insrt\n");
+		SysHalt();
+		break;
+	}
+
+	case NumExceptionTypes:
+	{
+		 cerr << "Error " << which << " occurs\n";
+            SysHalt();
+            ASSERTNOTREACHED();
+			break;
+	}
+		
 	case SyscallException:
 		switch (type)
 		{
@@ -106,19 +158,19 @@ void ExceptionHandler(ExceptionType which)
 		}
 		case SC_PrintNum:
 		{
-			int num = kernel->machine->ReadRegister(4); //Get number user passed as argument at Register 4 
-			SysPrintNum(num);	
-			return moveRegister(); 
+			int num = kernel->machine->ReadRegister(4); // Get number user passed as argument at Register 4
+			SysPrintNum(num);
+			return moveRegister();
 		}
 		case SC_ReadNum:
 		{
-			int result = SysReadNum();	
-			kernel->machine->WriteRegister(2, result); //write the result to register 2 
-			return moveRegister(); 
+			int result = SysReadNum();
+			kernel->machine->WriteRegister(2, result); // write the result to register 2
+			return moveRegister();
 		}
 		case SC_PrintChar:
 		{
-			char character = (char)kernel->machine->ReadRegister(4); //Get char user passed as argument at Register 4 
+			char character = (char)kernel->machine->ReadRegister(4); // Get char user passed as argument at Register 4
 			SysPrintChar(character);
 			return moveRegister();
 			break;
